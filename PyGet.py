@@ -66,6 +66,15 @@ def installWindows(manifest):
             datasize = f.write(chunk)
             progress.update(datasize)
 
+def installMac(manifest):
+    pass
+
+def installLinux(manifest):
+    pass
+
+def install(manifest, os):
+    pass
+
 
 # Uninstall Function #
 def uninstall(packageName):
