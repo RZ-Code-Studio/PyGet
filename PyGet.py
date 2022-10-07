@@ -53,7 +53,7 @@ def installWindows(manifest):
     size = int(requests.head(scriptURL).headers["Content-Length"])
     filename = scriptURL.split("/")[-1]
 
-    with requests.get(scriptURL) as r, open(f"{'USERPROFILE'}\\PyGet-Packages\\{filename}") as f, tqdm(
+    with requests.get(scriptURL) as r, open(f"{os.environ['USERPROFILE']}\\PyGet-Packages\\{filename}") as f, tqdm(
         unit="B",
         unit_scale=True,
         unit_divisor=1024,
