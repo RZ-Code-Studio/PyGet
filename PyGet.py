@@ -1,3 +1,5 @@
+# Credits to stackoverflow users for dynamic progress bar and distros
+
 # Imports #
 
 from tqdm.auto import tqdm  # For progressbar
@@ -21,6 +23,7 @@ def getOS():
         return "MacOS"
     elif sys.platform == "linux" or sys.platform == "linux2":
         return "Linux"
+        import distro # Import to get what it is based off of
     elif sys.platform == "win32":
         return "Windows"
 
@@ -29,7 +32,7 @@ def getOS():
 
 def getManifest(packageName):
     manifest = requests.get(
-        f"https://raw.githubusercontent.com/RZ-Code-Studio/PyGet-Packages/main/{getOS()}/{packageName}/manifest.json")
+        f"https://raw.githubusercontent.com/To-Code-Or-Not-To-Code/PyGet-Packages/main/{getOS()}/{packageName}/manifest.json")
 
     if manifest.status_code == 404:
         raise HTTPError("404: Package not Found")
@@ -70,10 +73,26 @@ def installMac(manifest):
     pass
 
 def installLinux(manifest):
-    pass
+    basedOff = distro.like().lower()
+    if basedOff == "slackware":
+        pass
+    elif basedOff == "debian":
+        pass
+    elif basedOff == "arch":
+        pass
+    elif basedOff == "redHat":
+        pass
+    else:
+        sys.stderr.write("Distro Not Supported")
+        sys.stderr.flush()
 
 def install(manifest, os):
-    pass
+    if os == "win":
+        installWindows(manifest)
+    elif os == "mac":
+        installMac(manifest)
+    elif os == "linux":
+        installLinux(manifest)
 
 
 # Uninstall Function #
@@ -102,6 +121,6 @@ parser.add_argument("--", type=str, default="", help="What are the options?")
 # Get Arguments #
 args = parser.parse_args()
 
-# Excute CLI #
+# Execute CLI #
 
 CLI(args.packageName, args.operation)
