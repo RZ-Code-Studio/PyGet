@@ -13,6 +13,8 @@ from requests.exceptions import HTTPError  # For get errors
 
 # Variables #
 
+currentVersion = 1.0
+
 # Functions #
 
 # Get OS #
@@ -31,13 +33,16 @@ def getOS():
 
 
 def getManifest(packageName):
+    if requests.get(f"https://raw.githubusercontent.com/To-Code-Or-Not-To-Code/PyGet-Packages/main/{getOS()}/PyGet/manifest.json").json()["version"] > currentVersion:
+        print("There is a new version of PyGet now. You can update it with pyget install pyget")
+
     manifest = requests.get(
         f"https://raw.githubusercontent.com/To-Code-Or-Not-To-Code/PyGet-Packages/main/{getOS()}/{packageName}/manifest.json")
 
     if manifest.status_code == 404:
         raise HTTPError("404: Package not Found. Maybe you typed the wrong package? The app could also not be ported to your enivorment yet")
     elif manifest.status_code == 400:
-        raise HTTPError("400: Bad Request")
+        raise HTTPError("400: Bad Request. That's my problem. Try updating PyGet.")
     elif manifest.status_code == 503:
         raise HTTPError("503: Internal Server Error")
     elif manifest.status_code == 204:
