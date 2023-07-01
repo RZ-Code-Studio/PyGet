@@ -35,7 +35,7 @@ def getManifest(packageName):
         f"https://raw.githubusercontent.com/To-Code-Or-Not-To-Code/PyGet-Packages/main/{getOS()}/{packageName}/manifest.json")
 
     if manifest.status_code == 404:
-        raise HTTPError("404: Package not Found")
+        raise HTTPError("404: Package not Found. Maybe you typed the wrong package? The app could also not be ported to your enivorment yet")
     elif manifest.status_code == 400:
         raise HTTPError("400: Bad Request")
     elif manifest.status_code == 503:
@@ -56,7 +56,7 @@ def installWindows(manifest):
     size = int(requests.head(scriptURL).headers["Content-Length"])
     filename = scriptURL.split("/")[-1]
 
-    with requests.get(scriptURL) as r, open(f"{os.environ['USERPROFILE']}\\PyGet-Packages\\{filename}") as f, tqdm(
+    with requests.get(scriptURL) as r, open(f"{os.path.expanduser('~')}\\PyGet-Packages\\{filename}") as f, tqdm(
         unit="B",
         unit_scale=True,
         unit_divisor=1024,
@@ -77,7 +77,7 @@ def installLinux(manifest):
     if basedOff == "slackware":
         pass
     elif basedOff == "debian":
-        pass
+        os.path.expanduser("~")
     elif basedOff == "arch":
         pass
     elif basedOff == "redHat":
@@ -107,8 +107,8 @@ def CLI(packageName, operation, options):
 
 
 # Check if packages directory exists if not #
-if os.path.isdir(f"{os.environ['userprofile']}\\PyGet-Packages"):
-    os.mkdir(f"{os.environ['userprofile']}\\PyGet-Packages")
+if os.path.isdir(f"{os.path.expanduser('~')}\\PyGet-Packages"):
+    os.mkdir(f"{os.path.expanduser('~')}\\PyGet-Packages")
 
 # CLI initater #
 parser = argparse.ArgumentParser(description="Cross-platform package manager")
