@@ -63,8 +63,8 @@ def get_manifest(package_name):
         )
 
     manifest = requests.get(
-        "https://raw.githubusercontent.com/To-Code-Or-Not-To-Code/PyGet-Packages/" +
-        f"main/{get_os()}/{package_name}/manifest.json",
+        "https://raw.githubusercontent.com/To-Code-Or-Not-To-Code" +
+        f"/PyGet-Packages/main/{get_os()}/{package_name}/manifest.json",
         timeout=180
     )
 
@@ -124,7 +124,6 @@ def install_mac(manifest):
     Args:
         manifest (dict): The manifest of the app
     """
-    pass
 
 
 def install_linux(manifest):
