@@ -109,14 +109,14 @@ def install(manifest):
         priorities.insert(i["priority"], i)
 
     for i in priorities:
-        scriptURL = i["source"]
-        size = int(requests.head(scriptURL, timeout=180).headers[
+        script_url = i["source"]
+        size = int(requests.head(script_url, timeout=180).headers[
             "Content-Length"
         ])
-        filename = scriptURL.split("/")[-1]
+        filename = script_url.split("/")[-1]
 
         if i["compile"] is False:
-            with requests.get(scriptURL, timeout=180) as req, open(
+            with requests.get(script_url, timeout=180) as req, open(
                 f"{os.path.expanduser('~')}/PyGet-Packages/{filename}",
                 "wb",
                 encoding=detect(req)["encoding"]
@@ -133,7 +133,7 @@ def install(manifest):
                     datasize = file.write(chunk)
                     progress.update(datasize)
         else:
-            with requests.get(scriptURL, timeout=180) as req, open(
+            with requests.get(script_url, timeout=180) as req, open(
                 f"{os.path.expanduser('~')}/PyGet-Packages/{filename}",
                 "w",
                 encoding=detect(req)["encoding"]
