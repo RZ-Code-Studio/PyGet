@@ -5,17 +5,17 @@
 import sys  # For stderr, stdout, checking specs, etc.
 import os  # For creating folders
 import argparse  # For CLI
+from shutil import rmtree  # Deleting things
 from tqdm.auto import tqdm  # For progressbar
 import requests  # For getting manifest, code, etc.
 from requests.exceptions import HTTPError  # For get errors
 from charset_normalizer import detect  # Encodings
-from shutil import rmtree
 
 # Constants #
 
 # Variables #
 
-current_version = 1.0
+CURRENTVERSION = 1.0
 
 # Functions #
 
@@ -61,7 +61,7 @@ def get_manifest(package_name):
             + f"PyGet-Packages/main/{get_os()}/PyGet/manifest.json",
             timeout=180,
         ).json()["version"]
-        > current_version
+        > CURRENTVERSION
     ):
         print(
             "There is a new version of PyGet now. You can update it with"
