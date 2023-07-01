@@ -23,6 +23,11 @@ current_version = 1.0
 
 
 def get_os():
+    """Gets Operating System
+
+    Returns:
+        str: OS
+    """
     if sys.platform == "darwin":
         return "MacOS"
     if sys.platform == "linux" or sys.platform == "linux2":
