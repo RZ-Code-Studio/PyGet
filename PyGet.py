@@ -9,6 +9,7 @@ from tqdm.auto import tqdm  # For progressbar
 import requests  # For getting manifest, code, etc.
 from requests.exceptions import HTTPError  # For get errors
 import distro  # Import to get what it is based off of
+from charset_normalizer import detect
 
 # Constants #
 
@@ -97,13 +98,19 @@ def install_windows(manifest):
     Args:
         manifest (dict): The manifest
     """
+    sources = manifest["sources"]
+    priorities = []
+    for i in sources:
+        priorities.insert(i["priority"], i)
+
     scriptURL = manifest["source"]
     size = int(requests.head(scriptURL, timeout=180).headers["Content-Length"])
     filename = scriptURL.split("/")[-1]
 
     with requests.get(scriptURL, timeout=180) as r, open(
         f"{os.path.expanduser('~')}\\PyGet-Packages\\{filename}",
-        "w"
+        "w",
+        encoding=detect(r.read())["encoding"]
     ) as f, tqdm(
         unit="B",
         unit_scale=True,
