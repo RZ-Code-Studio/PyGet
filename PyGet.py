@@ -8,8 +8,8 @@ import argparse  # For CLI
 from tqdm.auto import tqdm  # For progressbar
 import requests  # For getting manifest, code, etc.
 from requests.exceptions import HTTPError  # For get errors
-import distro  # Import to get what it is based off of
-from charset_normalizer import detect
+from charset_normalizer import detect  # Encodings
+from shutil import rmtree
 
 # Constants #
 
@@ -89,11 +89,11 @@ def get_manifest(package_name):
         return manifest.json()
 
 
-# Install Functions #
+# Install Function #
 
 
-def install_windows(manifest):
-    """Installs a package on windows
+def install(manifest):
+    """Installs a package
 
     Args:
         manifest (dict): The manifest
@@ -103,88 +103,47 @@ def install_windows(manifest):
     for i in sources:
         priorities.insert(i["priority"], i)
 
-    scriptURL = manifest["source"]
-    size = int(requests.head(scriptURL, timeout=180).headers["Content-Length"])
-    filename = scriptURL.split("/")[-1]
-
-    with requests.get(scriptURL, timeout=180) as r, open(
-        f"{os.path.expanduser('~')}\\PyGet-Packages\\{filename}",
-        "w",
-        encoding=detect(r.read())["encoding"]
-    ) as f, tqdm(
-        unit="B",
-        unit_scale=True,
-        unit_divisor=1024,
-        total=size,
-        file=sys.stdout,
-        desc=filename,
-        size=25,
-    ) as progress:
-        for chunk in r.iter_content(chunk_size=1024):
-            datasize = f.write(chunk)
-            progress.update(datasize)
-
-
-def install_mac(manifest):
-    """Installs a package on Mac
-
-    Args:
-        manifest (dict): The manifest of the app
-    """
-
-
-def install_linux(manifest):
-    """Installs a package on many Linux Distros
-
-    Args:
-        manifest (dict): Manifest of the app
-    """
-    basedOff = distro.like().lower()
-    if basedOff == "slackware":
-        pass
-    elif basedOff == "debian":
-        scriptURL = manifest["source"]
+    for i in priorities:
+        scriptURL = i["source"]
         size = int(requests.head(scriptURL, timeout=180).headers[
             "Content-Length"
         ])
         filename = scriptURL.split("/")[-1]
 
-        with requests.get(scriptURL, timeout=180) as r, open(
-            f"{os.path.expanduser('~')}\\PyGet-Packages\\{filename}",
-            "w"
-        ) as f, tqdm(
-            unit="B",
-            unit_scale=True,
-            unit_divisor=1024,
-            total=size,
-            file=sys.stdout,
-            desc=filename,
-            size=25,
-        ) as progress:
-            for chunk in r.iter_content(chunk_size=1024):
-                datasize = f.write(chunk)
-                progress.update(datasize)
-    elif basedOff == "arch":
-        pass
-    elif basedOff == "redHat":
-        pass
-    else:
-        sys.stderr.write("Distro Not Supported")
-        sys.stderr.flush()
-
-
-def install(manifest):
-    """Combined install function
-
-    Args:
-        manifest (dict): Manifest of software
-    """
-    if get_os() == "Windows":
-        install_windows(manifest)
-    elif get_os() == "MacOS":
-        install_mac(manifest)
-    elif get_os() == "Linux":
-        install_linux(manifest)
+        if i["compile"] is False:
+            with requests.get(scriptURL, timeout=180) as req, open(
+                f"{os.path.expanduser('~')}/PyGet-Packages/{filename}",
+                "wb",
+                encoding=detect(req)["encoding"]
+            ) as file, tqdm(
+                unit="B",
+                unit_scale=True,
+                unit_divisor=1024,
+                total=size,
+                file=sys.stdout,
+                desc=filename,
+                size=25,
+            ) as progress:
+                for chunk in req.iter_content(chunk_size=1024):
+                    datasize = file.write(chunk)
+                    progress.update(datasize)
+        else:
+            with requests.get(scriptURL, timeout=180) as req, open(
+                f"{os.path.expanduser('~')}/PyGet-Packages/{filename}",
+                "w",
+                encoding=detect(req)["encoding"]
+            ) as file, tqdm(
+                unit="B",
+                unit_scale=True,
+                unit_divisor=1024,
+                total=size,
+                file=sys.stdout,
+                desc=filename,
+                size=25,
+            ) as progress:
+                for chunk in req.iter_content(chunk_size=1024):
+                    datasize = file.write(chunk)
+                    progress.update(datasize)
 
 
 # Uninstall Function #
@@ -194,20 +153,22 @@ def uninstall(package_name):
     Args:
         package_name (str): Name of the package
     """
-    pass
+    rmtree(f"{os.path.expanduser('~')}/{package_name}")
 
 
 # Combined function for CLI #
 
 
-def CLI(package_name, operation, options):
+def CLI(package_name, operation):
     if operation == "install":
-        install(get_manifest(package_name), get_os())
+        install(get_manifest(package_name))
+    else:
+        uninstall(package_name)
 
 
 # Check if packages directory exists if not #
-if os.path.isdir(f"{os.path.expanduser('~')}\\PyGet-Packages"):
-    os.mkdir(f"{os.path.expanduser('~')}\\PyGet-Packages")
+if os.path.isdir(f"{os.path.expanduser('~')}/PyGet-Packages"):
+    os.mkdir(f"{os.path.expanduser('~')}/PyGet-Packages")
 
 # CLI initater #
 parser = argparse.ArgumentParser(description="Cross-platform package manager")
@@ -220,7 +181,6 @@ parser.add_argument(
     default="",
     help="What is your operation?"
 )
-parser.add_argument("--", type=str, default="", help="What are the options?")
 
 # Get Arguments #
 args = parser.parse_args()
